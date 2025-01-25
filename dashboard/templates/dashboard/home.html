@@ -1,0 +1,89 @@
+{% extends 'dashboard/base.html' %} 
+{% load static %} 
+{% block content %}
+
+<section class="container-fluid px-4">
+    <div class="text-center mb-4">
+        <h2 class="display-6 fw-bold text-primary">
+            <i class="fas fa-th-large me-2"></i>Student Dashboard
+        </h2>
+        <hr class="w-25 mx-auto border-primary">
+    </div>
+
+    <div class="row g-4">
+        {% with dashboard_items=dashboard_items_first %}
+            {% for item in dashboard_items %}
+            <div class="col-md-3">
+                <a href="{% url item.url %}" class="text-decoration-none">
+                    <div class="card card-hover h-100 shadow-sm border-0">
+                        <div class="card-body text-center p-4">
+                            <div class="icon-wrapper mb-4">
+                                <i class="fas {{ item.icon }} text-primary fa-4x"></i>
+                            </div>
+                            <h5 class="card-title text-dark mb-3">{{ item.title }}</h5>
+                            <p class="card-text text-muted">{{ item.description }}</p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            {% endfor %}
+        {% endwith %}
+    </div>
+
+    <div class="row g-4 mt-3">
+        {% with dashboard_items=dashboard_items_second %}
+            {% for item in dashboard_items %}
+            <div class="col-md-3">
+                <a href="{% url item.url %}" class="text-decoration-none">
+                    <div class="card card-hover h-100 shadow-sm border-0">
+                        <div class="card-body text-center p-4">
+                            <div class="icon-wrapper mb-4">
+                                <i class="fas {{ item.icon }} text-primary fa-4x"></i>
+                            </div>
+                            <h5 class="card-title text-dark mb-3">{{ item.title }}</h5>
+                            <p class="card-text text-muted">{{ item.description }}</p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            {% endfor %}
+        {% endwith %}
+    </div>
+</section>
+
+<style>
+.card-hover {
+    transition: all 0.3s ease;
+}
+
+.card-hover:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 1rem 3rem rgba(0,0,0,.175) !important;
+}
+
+.icon-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.card-body {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    height: 100%;
+}
+
+.card-title {
+    font-weight: 600;
+}
+
+.card-text {
+    max-width: 250px;
+    line-height: 1.6;
+}
+</style>
+{% endblock content %}

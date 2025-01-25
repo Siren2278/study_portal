@@ -1,0 +1,184 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+{% block content %}
+<div class="container-fluid px-4 py-5">
+    <div class="row justify-content-center">
+        <div class="col-xl-10 col-lg-11 col-md-12">
+            <div class="text-center mb-5">
+                <h2 class="display-5 fw-bold text-dark mb-3">
+                    <i class="fab fa-youtube text-danger me-3 animate-bounce"></i>
+                    YouTube Video Explorer
+                </h2>
+                <p class="lead text-muted mb-4">Discover, explore, and dive into the world of videos</p>
+            </div>
+
+            <form action="{% url 'youtube' %}" method="post" class="search-form mb-5 shadow-lg rounded-4 overflow-hidden">
+                {% csrf_token %}
+                <div class="input-group">
+                    {{ form.text }}
+                    <button class="btn btn-danger btn-lg rounded-pill-end" type="submit">
+                        <i class="fas fa-search me-2"></i>Search
+                    </button>
+                </div>
+                {% if form.text.errors %}
+                    <div class="text-danger small mt-2 px-3">
+                        {{ form.text.errors }}
+                    </div>
+                {% endif %}
+            </form>
+
+            <div class="video-grid">
+                {% for result in results %}
+                    <div class="video-item" data-video-id="{{ result.video_id }}">
+                        <img src="{{ result.thumbnail }}" class="video-thumbnail" alt="Video Thumbnail">
+                        <div class="video-content">
+                            <h4 class="video-title">{{ result.title|safe }}</h4>
+                            <div class="video-channel">
+                                <i class="fab fa-youtube text-danger me-2"></i>
+                                {{ result.channel }}
+                            </div>
+                            {% if result.description %}
+                                <p class="video-description">
+                                    {{ result.description|truncatewords:15|safe }}
+                                </p>
+                            {% endif %}
+                            <div class="video-meta">
+                                <span>
+                                    <i class="far fa-calendar-alt me-2"></i>
+                                    {{ result.published|date:"F d, Y" }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+
+            {% if not results %}
+                <div class="text-center py-5">
+                    <i class="fas fa-search fa-4x text-muted mb-4"></i>
+                    <h3 class="text-muted">No videos found</h3>
+                    <p class="text-muted">Try adjusting your search query</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+    .video-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 2rem;
+    }
+    
+    .video-item {
+        display: flex;
+        border-bottom: 1px solid #e9ecef;
+        padding-bottom: 1.5rem;
+        margin-bottom: 1.5rem;
+        transition: background-color 0.3s ease;
+    }
+    
+    .video-item:hover {
+        background-color: #f8f9fa;
+    }
+    
+    .video-thumbnail {
+        width: 240px;
+        height: 135px;
+        object-fit: cover;
+        margin-right: 1.5rem;
+        cursor: pointer;
+        transition: transform 0.3s ease;
+    }
+    
+    .video-item:hover .video-thumbnail {
+        transform: scale(1.05);
+    }
+    
+    .video-content {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .video-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 0.5rem;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    
+    .video-channel {
+        color: #7f8c8d;
+        margin-bottom: 0.5rem;
+    }
+    
+    .video-description {
+        color: #7f8c8d;
+        font-size: 0.9rem;
+        margin-bottom: 0.5rem;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    
+    .video-meta {
+        display: flex;
+        justify-content: space-between;
+        color: #7f8c8d;
+        font-size: 0.8rem;
+    }
+    
+    /* Responsive Adjustments */
+    @media (max-width: 1200px) {
+        .video-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .video-grid {
+            grid-template-columns: 1fr;
+        }
+    
+        .video-item {
+            flex-direction: column;
+        }
+    
+        .video-thumbnail {
+            width: 100%;
+            height: 200px;
+            margin-right: 0;
+            margin-bottom: 1rem;
+        }
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const videoItems = document.querySelectorAll('.video-item');
+        
+        videoItems.forEach(item => {
+            // Make thumbnail and content clickable
+            const thumbnail = item.querySelector('.video-thumbnail');
+            const content = item.querySelector('.video-content');
+            
+            const openVideo = () => {
+                const videoId = item.getAttribute('data-video-id');
+                if (videoId) {
+                    window.open(`https://www.youtube.com/watch?v=${videoId}`, '_blank');
+                }
+            };
+    
+            thumbnail.addEventListener('click', openVideo);
+            content.addEventListener('click', openVideo);
+        });
+    });
+</script>
+{% endblock content %}

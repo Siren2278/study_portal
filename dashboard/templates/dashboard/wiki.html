@@ -1,0 +1,172 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10">
+            <div class="wiki-search-container text-center">
+                <div class="wiki-search-header mb-5">
+                    <h1 class="display-6 mb-3">
+                        <i class="fab fa-wikipedia-w text-primary me-3"></i>
+                        Wikipedia Article Explorer
+                    </h1>
+                    <p class="lead text-muted">Discover knowledge at your fingertips</p>
+                </div>
+
+                <form action="{% url 'wiki' %}" method="post" class="wiki-search-form mb-4">
+                    {% csrf_token %}
+                    <div class="input-group shadow-sm">
+                        {{ form.text }}
+                        <button class="btn btn-primary" type="submit">
+                            <i class="fas fa-search me-2"></i>Search
+                        </button>
+                    </div>
+                    {% if form.text.errors %}
+                        <div class="text-danger small mt-2">
+                            {{ form.text.errors }}
+                        </div>
+                    {% endif %}
+                </form>
+
+                {% if error %}
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        {{ error }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endif %}
+
+                {% if title and link and details %}
+                    <div class="wiki-result-card animate__animated animate__fadeIn">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-header bg-primary text-white">
+                                <h3 class="card-title mb-0">
+                                    <a href="{{ link }}" target="_blank" class="text-white text-decoration-none">
+                                        {{ title }}
+                                    </a>
+                                </h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="wiki-link mb-3">
+                                    <i class="fas fa-link text-muted me-2"></i>
+                                    <a href="{{ link }}" target="_blank" class="text-muted small">
+                                        {{ link }}
+                                    </a>
+                                </div>
+                                <p class="card-text text-dark wiki-description">
+                                    {{ details|truncatewords:50 }}
+                                </p>
+                            </div>
+                            <div class="card-footer bg-light">
+                                <a href="{{ link }}" target="_blank" class="btn btn-outline-primary">
+                                    Read Full Article
+                                    <i class="fas fa-external-link-alt ms-2"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+:root {
+    --wiki-blue: #3366cc;
+    --text-dark: #2c3e50;
+    --text-muted: #7f8c8d;
+}
+
+.wiki-search-container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.wiki-search-form .input-group {
+    border-radius: 50px;
+    overflow: hidden;
+}
+
+.wiki-search-form input {
+    border: none;
+    padding: 0.75rem 1.25rem;
+    background-color: #f8f9fa;
+}
+
+.wiki-search-form input:focus {
+    box-shadow: none;
+    background-color: #fff;
+}
+
+.wiki-result-card {
+    margin-top: 2rem;
+}
+
+.wiki-result-card .card-header {
+    background-color: var(--wiki-blue) !important;
+}
+
+.wiki-result-card .card-title a {
+    transition: color 0.3s ease;
+}
+
+.wiki-result-card .card-title a:hover {
+    color: #f8f9fa !important;
+    text-decoration: underline;
+}
+
+.wiki-description {
+    line-height: 1.6;
+    color: var(--text-dark);
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.wiki-link {
+    display: flex;
+    align-items: center;
+}
+
+.wiki-link a {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+@media (max-width: 768px) {
+    .wiki-search-form .input-group {
+        flex-direction: column;
+    }
+
+    .wiki-search-form input {
+        border-radius: 0.25rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .wiki-search-form button {
+        border-radius: 0.25rem;
+        width: 100%;
+    }
+}
+
+/* Optional: Add subtle animation */
+.animate__animated {
+    animation-duration: 0.5s;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Close alert after 5 seconds
+    const alerts = document.querySelectorAll('.alert');
+    alerts.forEach(alert => {
+        setTimeout(() => {
+            const bsAlert = new bootstrap.Alert(alert);
+            bsAlert.close();
+        }, 5000);
+    });
+});
+</script>
+{% endblock content %}

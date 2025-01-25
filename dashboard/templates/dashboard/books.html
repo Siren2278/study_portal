@@ -1,0 +1,248 @@
+{% extends 'dashboard/base.html' %} 
+{% load static %} 
+{% block content %}
+<div class="container py-5 px-4">
+    <div class="row justify-content-center">
+        <div class="col-xl-10 col-lg-11 col-md-12">
+            <div class="text-center mb-5">
+                <h2 class="display-6 mb-3">
+                    <i class="fas fa-book-open text-primary me-3"></i>
+                    Search Books and Explore
+                </h2>
+                <p class="lead text-muted">Enter a search query to discover your next great read</p>
+            </div>
+
+            <form action="" method="post" class="mb-5">
+                {% csrf_token %}
+                <div class="input-group">
+                    {% for field in form %}
+                        {% if field.errors %}
+                            <div class="text-danger">{{ field.errors }}</div>
+                        {% endif %}
+                        {{ field }}
+                    {% endfor %}
+                    <button class="btn btn-primary" type="submit">
+                        <i class="fas fa-search me-2"></i>Search Books
+                    </button>
+                </div>
+            </form>
+
+            <!-- Modify the results section in your template -->
+            <div class="book-search-grid">
+                {% for result in results %}
+                    <div class="book-item" data-preview-link="{{ result.preview_link }}" style="cursor: pointer;">
+                        {% if result.thumbnail %}
+                            <img class="book-thumbnail" src="{{ result.thumbnail }}" alt="{{ result.title }} cover">
+                        {% else %}
+                            <div class="book-thumbnail-placeholder">
+                                <i class="fas fa-book fa-3x text-muted"></i>
+                                <p class="text-muted mt-2">No Cover</p>
+                            </div>
+                        {% endif %}
+
+                        <div class="book-content">
+                            <h4 class="book-title">{{ result.title }}</h4>
+                            
+                            {% if result.subtitle %}
+                                <h6 class="book-subtitle">{{ result.subtitle }}</h6>
+                            {% endif %}
+
+                            {% if result.description %}
+                                <p class="book-description">{{ result.description|truncatewords:30 }}</p>
+                            {% endif %}
+
+                            <div class="book-details">
+                                {% if result.authors %}
+                                    <div class="book-detail">
+                                        <i class="fas fa-pen-nib"></i>
+                                        {{ result.authors|slice:":2"|join:", " }}
+                                        {% if result.authors|length > 2 %}
+                                            and {{ result.authors|length|add:"-2" }} more
+                                        {% endif %}
+                                    </div>
+                                {% endif %}
+
+                                {% if result.categories %}
+                                    <div class="book-detail">
+                                        <i class="fas fa-tags"></i>
+                                        {{ result.categories|first }}
+                                        {% if result.categories|length > 1 %}
+                                            and {{ result.categories|length|add:"-1" }} more
+                                        {% endif %}
+                                    </div>
+                                {% endif %}
+
+                                {% if result.page_count %}
+                                    <div class="book-detail">
+                                        <i class="fas fa-book"></i>
+                                        {{ result.page_count }} Pages
+                                    </div>
+                                {% endif %}
+
+                                {% if result.rating %}
+                                    <div class="book-detail">
+                                        <i class="fas fa-star text-warning"></i>
+                                        {{ result.rating }} Rating
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .book-search-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 2rem;
+        padding: 0 0.5rem; /* Add slight horizontal padding */
+    }
+    
+    .book-item {
+        display: flex;
+        border: 1px solid #e9ecef;
+        border-radius: 10px;
+        padding: 1.5rem;
+        transition: all 0.3s ease;
+        background-color: white;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    }
+    
+    .book-item:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        border-color: #007bff;
+    }
+    
+    .book-thumbnail {
+        width: 150px;
+        height: 220px;
+        object-fit: cover;
+        border-radius: 8px;
+        margin-right: 1.5rem;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        transition: transform 0.3s ease;
+    }
+    
+    .book-item:hover .book-thumbnail {
+        transform: scale(1.05);
+    }
+    
+    .book-thumbnail-placeholder {
+        width: 150px;
+        height: 220px;
+        background-color: #f8f9fa;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        border-radius: 8px;
+        margin-right: 1.5rem;
+    }
+    
+    .book-content {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .book-title {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: #2c3e50;
+        margin-bottom: 0.5rem;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    
+    .book-subtitle {
+        color: #7f8c8d;
+        font-size: 1rem;
+        margin-bottom: 1rem;
+        display: -webkit-box;
+        -webkit-line-clamp: 1;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    
+    .book-description {
+        color: #555;
+        font-size: 0.9rem;
+        margin-bottom: 1rem;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    
+    .book-details {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        margin-top: auto;
+    }
+    
+    .book-detail {
+        display: flex;
+        align-items: center;
+        color: #6c757d;
+        font-size: 0.8rem;
+    }
+    
+    .book-detail i {
+        margin-right: 0.5rem;
+        color: #007bff;
+    }
+    
+    /* Responsive Adjustments */
+    @media (max-width: 1200px) {
+        .book-search-grid {
+            grid-template-columns: repeat(2, 1fr);
+            padding: 0 1rem;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .book-search-grid {
+            grid-template-columns: 1fr;
+            padding: 0 1.5rem;
+        }
+    
+        .book-item {
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+    
+        .book-thumbnail, .book-thumbnail-placeholder {
+            margin-right: 0;
+            margin-bottom: 1rem;
+        }
+    
+        .book-details {
+            justify-content: center;
+        }
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const bookItems = document.querySelectorAll('.book-item');
+        
+        bookItems.forEach(item => {
+            item.addEventListener('click', function() {
+                const previewLink = this.getAttribute('data-preview-link');
+                if (previewLink) {
+                    window.open(previewLink, '_blank');
+                }
+            });
+        });
+    });
+</script>
+{% endblock content %}

@@ -1,0 +1,200 @@
+{% extends 'dashboard/base.html' %} 
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="container-fluid px-4">
+    <div class="row mb-4 align-items-center">
+        <div class="col">
+            <h2 class="display-6 text-primary mb-0">
+                <i class="fas fa-list-alt me-2"></i>Todo List
+            </h2>
+        </div>
+        <div class="col-auto">
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createTodoModal">
+                <i class="fas fa-plus me-2"></i>Add Todo
+            </button>
+        </div>
+    </div>
+
+    {% if todos %}
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="bg-primary text-white">
+                        <tr>
+                            <th class="text-center">#</th>
+                            <th>Title</th>
+                            <th class="text-center">Status</th>
+                            <th class="text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for todo in todos %}
+                        <tr class="{% if todo.is_finished %}table-success{% endif %}">
+                            <td class="text-center">{{ forloop.counter }}</td>
+                            <td>
+                                <span class="{% if todo.is_finished %}text-muted text-decoration-line-through{% endif %}">
+                                    {{ todo.title }}
+                                </span>
+                            </td>
+                            <td class="text-center">
+                                <a href="{% url 'update-todo' todo.id %}" class="toggle-todo-status" data-todo-id="{{ todo.id }}">
+                                    <div class="form-check form-switch d-flex justify-content-center">
+                                        <input class="form-check-input" type="checkbox" 
+                                               {% if todo.is_finished %}checked{% endif %}
+                                               role="switch">
+                                    </div>
+                                </a>
+                            </td>
+                            <td class="text-center">
+                                <div class="btn-group" role="group">
+                                    <!-- Add Edit Button -->
+                                    <a href="{% url 'update-todo' todo.id %}" class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <button class="btn btn-sm btn-outline-danger delete-todo" data-todo-id="{{ todo.id }}">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-3">
+        <div class="col-md-6">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fas fa-check-circle me-2"></i>Completed Tasks
+                    </h5>
+                    <p class="card-text display-6">
+                        {{ todos.completed_count }}
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fas fa-spinner me-2"></i>Pending Tasks
+                    </h5>
+                    <p class="card-text display-6">
+                        {{ todos.pending_count }}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="alert alert-info text-center" role="alert">
+        <i class="fas fa-info-circle me-2"></i>
+        You haven't added any todos yet. Click "Add Todo" to get started!
+    </div>
+    {% endif %}
+
+    <!-- Create Todo Modal -->
+    <div class="modal fade" id="createTodoModal" tabindex="-1" aria-labelledby="createTodoModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="createTodoModalLabel">
+                        <i class="fas fa-plus-circle me-2"></i>Create New Todo
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="form-group mb-3">
+                                    <label for="{{ form.title.id_for_label }}" class="form-label">
+                                        <i class="fas fa-heading me-2"></i>Todo Title
+                                    </label>
+                                    {{ form.title|as_crispy_field }}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        {% if form.description %}
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="form-group mb-3">
+                                    <label for="{{ form.description.id_for_label }}" class="form-label">
+                                        <i class="fas fa-align-left me-2"></i>Description (Optional)
+                                    </label>
+                                    {{ form.description|as_crispy_field }}
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            <i class="fas fa-times me-2"></i>Cancel
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>Save Todo
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Delete Todo Confirmation
+        const deleteButtons = document.querySelectorAll('.delete-todo');
+        deleteButtons.forEach(button => {
+            button.addEventListener('click', function(e) {
+                const todoId = this.getAttribute('data-todo-id');
+                const deleteUrl = `{% url 'delete-todo' 0 %}`.replace('0', todoId); // Dynamically generate URL
+                
+                Swal.fire({
+                    title: 'Delete Todo?',
+                    text: 'Are you sure you want to delete this todo? This action cannot be undone.',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Yes, delete it!'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = deleteUrl;
+                    }
+                });
+            });
+        });
+    
+        // Todo Status Toggle
+        const statusToggles = document.querySelectorAll('.toggle-todo-status');
+        statusToggles.forEach(toggle => {
+            toggle.addEventListener('click', function(e) {
+                e.preventDefault();
+                const todoId = this.getAttribute('data-todo-id');
+                const updateUrl = `{% url 'update-todo' 0 %}`.replace('0', todoId); // Dynamically generate URL
+                window.location.href = updateUrl;
+            });
+        });
+    });
+</script>
+
+<style>
+.table-responsive {
+    overflow-x: auto;
+}
+</style>
+
+<!-- Sweet Alert for Confirmations -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+{% endblock content %}

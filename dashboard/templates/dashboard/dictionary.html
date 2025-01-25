@@ -1,0 +1,87 @@
+{% extends 'dashboard/base.html' %} 
+{% load static %} 
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white text-center">
+                    <h2 class="mb-0">
+                        <i class="fas fa-book-dictionary me-2"></i>Student Dictionary
+                    </h2>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted text-center mb-4">
+                        Enter any word to get the phonetics, definition, and an example
+                    </p>
+                    
+                    <form action="{% url 'dictionary' %}" method="post" class="mb-4">
+                        {% csrf_token %}
+                        <div class="input-group">
+                            {{ form.text }}
+                            <button class="btn btn-primary" type="submit">
+                                <i class="fas fa-search me-2"></i>Search
+                            </button>
+                        </div>
+                    </form>
+
+                    {% if error %}
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <i class="fas fa-exclamation-circle me-2"></i>{{ error }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                    {% endif %}
+
+                    {% if input %}
+                    <div class="card">
+                        <div class="card-header text-center">
+                            <h3 class="mb-1">{{ input|title }}</h3>
+                            {% if phonetics %}
+                            <small class="text-muted">{{ phonetics }}</small>
+                            {% endif %}
+
+                            {% if audio and 'http' in audio %}
+                            <audio id="player" src="{{ audio }}"></audio>
+                            <div class="mt-2">
+                                <button onclick="document.getElementById('player').play()" 
+                                        class="btn btn-outline-primary btn-sm">
+                                    <i class='fas fa-volume-up me-2'></i>Listen
+                                </button>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="card-body">
+                            {% if definition %}
+                            <h5 class="card-title">
+                                <i class="fas fa-quote-left me-2 text-primary"></i>Definition
+                            </h5>
+                            <p class="card-text">{{ definition }}</p>
+                            {% endif %}
+
+                            {% if example %}
+                            <h5 class="card-title mt-3">
+                                <i class="fas fa-comment me-2 text-primary"></i>Example
+                            </h5>
+                            <p class="card-text fst-italic">{{ example }}</p>
+                            {% endif %}
+
+                            {% if synonyms %}
+                            <h5 class="card-title mt-3">
+                                <i class="fas fa-clone me-2 text-primary"></i>Synonyms
+                            </h5>
+                            <p class="card-text">
+                                {% for synonym in synonyms %}
+                                    <span class="badge bg-secondary me-1">{{ synonym }}</span>
+                                {% endfor %}
+                            </p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

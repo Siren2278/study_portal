@@ -1,0 +1,121 @@
+{% extends "dashboard/base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card shadow-lg border-0 rounded-lg">
+                <div class="card-header bg-primary text-white text-center py-4">
+                    <h2 class="mb-0">
+                        <i class="fas fa-sign-in-alt me-2"></i>Welcome Back
+                    </h2>
+                    <p class="text-white-50 mt-2">Sign in to continue to your dashboard</p>
+                </div>
+                <div class="card-body p-4">
+                    <form method="POST" novalidate>
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label for="id_username" class="form-label">
+                                <i class="fas fa-user me-2"></i>Username
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-user"></i></span>
+                                <input type="text" name="username" id="id_username" 
+                                       class="form-control {% if form.username.errors %}is-invalid{% endif %}" 
+                                       placeholder="Enter your username"
+                                       required 
+                                       value="{{ form.username.value|default:'' }}">
+                                {% if form.username.errors %}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.username.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="id_password" class="form-label">
+                                <i class="fas fa-lock me-2"></i>Password
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                                <input type="password" name="password" id="id_password" 
+                                       class="form-control {% if form.password.errors %}is-invalid{% endif %}" 
+                                       placeholder="Enter your password"
+                                       required>
+                                <button type="button" id="togglePassword" class="btn btn-outline-secondary">
+                                    <i class="fas fa-eye" id="toggleIcon"></i>
+                                </button>
+                                {% if form.password.errors %}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.password.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="d-flex justify-content-between mt-2">
+                                <a href="#" class="text-muted small">
+                                    <i class="fas fa-question-circle me-1"></i>Forgot Password?
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="rememberMe" name="remember">
+                            <label class="form-check-label" for="rememberMe">
+                                Remember me
+                            </label>
+                        </div>
+
+                        {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {% for error in form.non_field_errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+
+                        <div class="d-grid mt-4">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-sign-in-alt me-2"></i>Sign In
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                <div class="card-footer text-center py-3">
+                    <p class="mb-0">
+                        Don't have an account? 
+                        <a href="{% url 'register' %}" class="text-primary">
+                            <i class="fas fa-user-plus me-1"></i>Create Account
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+      // Password visibility toggle
+      const passwordInput = document.getElementById('id_password');
+      const togglePasswordButton = document.getElementById('togglePassword');
+      const toggleIcon = document.getElementById('toggleIcon');
+
+      togglePasswordButton.addEventListener('click', function() {
+          // Toggle the type attribute
+          const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+          passwordInput.setAttribute('type', type);
+          
+          // Toggle the eye icon
+          toggleIcon.classList.toggle('fa-eye');
+          toggleIcon.classList.toggle('fa-eye-slash');
+      });
+  });
+</script>
+{% endblock content %}

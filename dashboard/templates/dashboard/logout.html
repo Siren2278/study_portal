@@ -1,0 +1,16 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+{% block content %}
+
+<div class="border-top pt-3 text-center">
+  <h2>You are logged Out</h2>
+
+  <small class="text-muted">
+    <form action="{% url 'logout' %}" method="post">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-primary">Log In Again</button>
+    </form>
+  </small>
+</div>
+
+{% endblock %}
