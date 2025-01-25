@@ -1,5 +1,11 @@
 from pathlib import Path
 
+from decouple import config
+
+# Example usage in settings
+SECRET_KEY = config('SECRET_KEY')
+API_KEY = config('API_KEY', default='') 
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -8,7 +14,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-=@#&-e_u-bs$=ex!v^n%yrw7+d^wv3brl=q^4c&v^aah5uufnv'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True

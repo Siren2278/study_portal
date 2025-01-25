@@ -7,8 +7,8 @@ import requests
 import wikipedia
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import logout
+from decouple import config
 
-API_KEY = 'AIzaSyD-cTrENeBfbVEb1JsaJoThrPOXohpPk0g'
 
 def custom_logout(request):
     logout(request)
@@ -148,25 +148,29 @@ def youtube(request):
     if request.method == 'POST':
         form = DashboardForm(request.POST)
         if form.is_valid():
-            # Use the correct field name that matches your form
-            search_query = form.cleaned_data['text']  # Change to 'text'
+            search_query = form.cleaned_data['text']  # Correctly fetch the search query
+
+            # Get the API key from the environment
+            api_key = config('API_KEY', default=None)
+
+            if not api_key:
+                messages.error(request, "API key is not configured!")
+                return render(request, 'dashboard/youtube.html', {'form': form})
 
             url = "https://youtube.googleapis.com/youtube/v3/search"
-            headers = {
-                'Referer': 'http://127.0.0.1:8000',
-            }
+            headers = {'Referer': 'http://127.0.0.1:8000'}
             params = {
                 'q': search_query,
                 'part': 'snippet',
                 'maxResults': 10,
                 'type': 'video',
-                'key': API_KEY,
+                'key': api_key,  # Use the secure API key
             }
 
             try:
                 response = requests.get(url, headers=headers, params=params)
                 response.raise_for_status()
-                
+
                 search_response = response.json()
                 result_list = []
                 for item in search_response.get('items', []):
@@ -183,18 +187,16 @@ def youtube(request):
                         }
                         result_list.append(video)
 
-                context = {
-                    'form': form,
-                    'results': result_list,
-                }
+                context = {'form': form, 'results': result_list}
                 return render(request, 'dashboard/youtube.html', context)
-            
+
             except requests.RequestException as e:
                 messages.error(request, f"Error fetching YouTube results: {str(e)}")
     else:
         form = DashboardForm()
 
     return render(request, 'dashboard/youtube.html', {'form': form})
+
 
 @login_required
 def todo(request):
